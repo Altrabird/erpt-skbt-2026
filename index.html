@@ -1313,48 +1313,96 @@ function renderDashboard() {
 }
 
 // ═══════════════════════════════════════════════════════
-// NAV + INTERACTION
+// HASH ROUTING
 // ═══════════════════════════════════════════════════════
 
-let currentPanel = 'dashboard';
+// Parse hash → { panel, subject, week }
+// Supported formats:
+//   #dashboard
+//   #bi
+//   #sains
+//   #bi-week-7
+//   #sains-week-14
+function parseHash(hash) {
+  const h = (hash || '').replace('#', '').trim();
+  if (!h || h === 'dashboard') return { panel: 'dashboard' };
+  if (h === 'bi') return { panel: 'bi' };
+  if (h === 'sains') return { panel: 'sains' };
+  const m = h.match(/^(bi|sains)-week-(\d+)$/);
+  if (m) return { panel: m[1], subject: m[1], week: parseInt(m[2]) };
+  return { panel: 'dashboard' };
+}
 
-function showPanel(panel) {
+// Navigate — update hash and render
+function navigate(hash) {
+  window.location.hash = hash;
+}
+
+// Core render from parsed route
+function applyRoute(route) {
+  // Show correct panel
+  _showPanel(route.panel);
+
+  // If week target, scroll to it
+  if (route.week) {
+    setTimeout(() => {
+      const el = document.getElementById(route.subject + '-week-' + route.week);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (!el.classList.contains('open')) el.classList.add('open');
+      }
+    }, 80);
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+// Internal panel switcher (no hash update)
+function _showPanel(panel) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + panel).classList.add('active');
+
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector('.tab-btn.' + (panel === 'dashboard' ? 'bi' : panel)).classList.add('active');
-  if (panel === 'dashboard') document.querySelector('.tab-btn.bi').classList.add('active');
+  if (panel === 'dashboard') {
+    document.querySelector('.tab-btn.bi').classList.add('active');
+  } else {
+    const btn = document.querySelector('.tab-btn.' + panel);
+    if (btn) btn.classList.add('active');
+  }
 
-  // Sidebar toggle
-  document.getElementById('sidebar-weeks-bi').style.display = panel === 'bi' ? 'block' : 'none';
+  // Sidebar
+  document.getElementById('sidebar-weeks-bi').style.display    = panel === 'bi'    ? 'block' : 'none';
   document.getElementById('sidebar-weeks-sains').style.display = panel === 'sains' ? 'block' : 'none';
+}
 
-  currentPanel = panel;
+// Public: called by tab buttons
+function showPanel(panel) {
+  navigate('#' + panel);
+}
+
+// Public: called by sidebar week items
+function jumpToWeek(subject, weekNum) {
+  navigate('#' + subject + '-week-' + weekNum);
+}
+
+// Public: called by heatmap cells
+function jumpAndShow(weekNum) {
+  const bi = biData.find(d => d.week === weekNum);
+  if (bi && bi.lessons && bi.lessons.length > 0) {
+    navigate('#bi-week-' + weekNum);
+  } else {
+    navigate('#sains-week-' + weekNum);
+  }
 }
 
 function toggleCard(el) {
   el.classList.toggle('open');
 }
 
-function jumpToWeek(subject, weekNum) {
-  showPanel(subject);
-  setTimeout(() => {
-    const el = document.getElementById(subject + '-week-' + weekNum);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      if (!el.classList.contains('open')) el.classList.add('open');
-    }
-  }, 100);
-}
-
-function jumpAndShow(weekNum) {
-  const bi = biData.find(d => d.week === weekNum);
-  if (bi && bi.lessons && bi.lessons.length > 0) {
-    jumpToWeek('bi', weekNum);
-  } else {
-    jumpToWeek('sains', weekNum);
-  }
-}
+// Listen to hash changes (back/forward button support)
+window.addEventListener('hashchange', () => {
+  applyRoute(parseHash(window.location.hash));
+});
 
 // ═══════════════════════════════════════════════════════
 // INIT
@@ -1362,7 +1410,9 @@ function jumpAndShow(weekNum) {
 renderBI();
 renderSains();
 renderDashboard();
-showPanel('dashboard');
+
+// Boot from current hash (supports direct link / refresh)
+applyRoute(parseHash(window.location.hash));
 </script>
 </body>
 </html>
