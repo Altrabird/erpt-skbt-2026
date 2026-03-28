@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eRPT v1.0 — SK Bandar Tawau</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #f5f3ee;
+    --surface: #ffffff;
+    --surface2: #f0ede6;
+    --border: #d8d2c5;
+    --text: #1a1814;
+    --text-muted: #6b6456;
+    --accent-bi: #1a4a7a;
+    --accent-bi-light: #e8f0f9;
+    --accent-sains: #2d6b3a;
+    --accent-sains-light: #e6f4e8;
+    --gold: #c0902a;
+    --gold-light: #fdf3e3;
+    --red: #b03030;
+    --radius: 8px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--text);
+    color: #fff;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-lg);
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .logo span { color: var(--gold); }
+  .school-badge {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    border-left: 1px solid rgba(255,255,255,0.2);
+    padding-left: 16px;
+    line-height: 1.4;
+  }
+  .school-badge strong { color: rgba(255,255,255,0.9); font-size: 12px; }
+  .header-tabs {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+  }
+  .tab-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.7);
+    padding: 7px 18px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+  .tab-btn.active {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .tab-btn.bi.active { background: var(--accent-bi-light); border-color: #8ab0d8; color: var(--accent-bi); }
+  .tab-btn.sains.active { background: var(--accent-sains-light); border-color: #8ac99a; color: var(--accent-sains); }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+    display: flex;
+    gap: 20px;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+  }
+  .sidebar-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .sidebar-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 10px 14px 8px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .week-list {
+    max-height: 520px;
+    overflow-y: auto;
+  }
+  .week-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+    font-size: 12.5px;
+  }
+  .week-item:last-child { border-bottom: none; }
+  .week-item:hover { background: var(--surface2); }
+  .week-item.active { background: var(--accent-bi-light); }
+  .week-item.active.sains-active { background: var(--accent-sains-light); }
+  .week-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    min-width: 28px;
+  }
+  .week-label { flex: 1; font-weight: 500; }
+  .week-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .badge-holiday { background: #fde8e8; color: var(--red); }
+  .badge-exam { background: var(--gold-light); color: var(--gold); }
+
+  /* Stats in sidebar */
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-val {
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  /* ── CONTENT AREA ── */
+  .content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Page panel */
+  .panel {
+    display: none;
+  }
+  .panel.active { display: block; }
+
+  /* ── RPT TABLE ── */
+  .rpt-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .rpt-title {
+    flex: 1;
+  }
+  .rpt-title h2 {
+    font-family: 'Noto Serif', serif;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .rpt-title p {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .pill-bi { background: var(--accent-bi-light); color: var(--accent-bi); }
+  .pill-sains { background: var(--accent-sains-light); color: var(--accent-sains); }
+
+  /* Week detail card */
+  .week-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  .week-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+  }
+  .week-card-header:hover { background: var(--surface2); }
+  .week-card-header .wk-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--border);
+    min-width: 40px;
+  }
+  .week-card-header .wk-info { flex: 1; }
+  .week-card-header .wk-info h3 {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .week-card-header .wk-info p {
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+  .week-card-header .wk-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+  .chevron {
+    color: var(--text-muted);
+    transition: transform 0.2s;
+    font-size: 12px;
+  }
+  .week-card.open .chevron { transform: rotate(90deg); }
+
+  .week-card-body {
+    display: none;
+    border-top: 1px solid var(--border);
+  }
+  .week-card.open .week-card-body { display: block; }
+
+  /* Lesson rows inside card */
+  .lesson-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  .lesson-table thead tr {
+    background: var(--surface2);
+  }
+  .lesson-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .lesson-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .lesson-table tr:last-child td { border-bottom: none; }
+  .lesson-table tr:hover td { background: rgba(0,0,0,0.015); }
+
+  .focus-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .focus-Listening { background: #e8f3fc; color: #1a5c90; }
+  .focus-Speaking { background: #fef3e2; color: #b06a10; }
+  .focus-Reading { background: #e8f9ec; color: #1a6b30; }
+  .focus-Writing { background: #f3e8fc; color: #6a1a90; }
+  .focus-Language { background: #fce8e8; color: #901a1a; }
+  .focus-default { background: var(--surface2); color: var(--text-muted); }
+
+  /* Standards text */
+  .std-text {
+    color: var(--text-muted);
+    line-height: 1.45;
+    max-width: 480px;
+  }
+  .std-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-bi);
+    font-weight: 500;
+    margin-right: 4px;
+  }
+
+  /* Holiday/special row */
+  .week-card.holiday .week-card-header { background: #fdf5f5; }
+  .week-card.holiday .wk-num { color: #e8b0b0; }
+
+  /* ── SAINS TABLE ── */
+  .sains-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  .sains-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    cursor: pointer;
+    border-left: 4px solid var(--accent-sains);
+  }
+  .sains-header:hover { background: var(--surface2); }
+  .sains-header .sk-wk {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent-sains);
+    background: var(--accent-sains-light);
+    padding: 4px 8px;
+    border-radius: 4px;
+    min-width: 80px;
+    text-align: center;
+  }
+  .sains-header .sk-content { flex: 1; }
+  .sains-header .sk-content h3 { font-size: 14px; font-weight: 700; }
+  .sains-header .sk-content p { font-size: 11.5px; color: var(--text-muted); }
+  .sains-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 16px 18px;
+  }
+  .sains-card.open .sains-body { display: block; }
+  .sains-card.open .chevron { transform: rotate(90deg); }
+
+  .tp-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .tp-cell {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+  }
+  .tp-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-sains);
+  }
+  .tp-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  .catatan-box {
+    background: var(--surface2);
+    border-left: 3px solid var(--gold);
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 12px;
+  }
+  .catatan-box strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ── DASHBOARD ── */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .dash-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--shadow);
+  }
+  .dash-card .dkpi {
+    font-family: 'DM Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .dash-card .dkpi.bi { color: var(--accent-bi); }
+  .dash-card .dkpi.sains { color: var(--accent-sains); }
+  .dash-card .dkpi.gold { color: var(--gold); }
+  .dash-card .dlabel {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+  .dash-card .dsub {
+    font-size: 11px;
+    color: var(--border);
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .timeline {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .timeline-header {
+    padding: 14px 18px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .progress-bar-wrap {
+    height: 28px;
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-bi) 0%, #2d7ab3 100%);
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    transition: width 0.5s ease;
+  }
+  .term-label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.9);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+
+  .week-heatmap {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+    padding: 16px 18px;
+  }
+  .hm-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s;
+    position: relative;
+  }
+  .hm-cell:hover { transform: scale(1.15); z-index: 10; }
+  .hm-bi { background: var(--accent-bi-light); color: var(--accent-bi); }
+  .hm-sains { background: var(--accent-sains-light); color: var(--accent-sains); }
+  .hm-holiday { background: #fde8e8; color: var(--red); }
+  .hm-exam { background: var(--gold-light); color: var(--gold); }
+  .hm-both {
+    background: linear-gradient(135deg, var(--accent-bi-light) 50%, var(--accent-sains-light) 50%);
+    color: var(--text);
+  }
+
+  .focus-chart {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    padding: 16px 18px;
+  }
+  .fc-item {
+    text-align: center;
+  }
+  .fc-bar-wrap {
+    height: 60px;
+    background: var(--surface2);
+    border-radius: 4px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+  .fc-bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    transition: height 0.4s;
+  }
+  .fc-count { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; margin-top: 6px; }
+  .fc-name { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    margin-top: 24px;
+  }
+  .footer a { color: var(--accent-bi); text-decoration: none; }
+
+  /* ── PRINT ── */
+  @media print {
+    .header, .sidebar, .header-tabs { display: none !important; }
+    .main { padding: 0; }
+    .content { min-width: 100%; }
+    .week-card-body { display: block !important; }
+    .sains-body { display: block !important; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .main { flex-direction: column; padding: 12px; }
+    .sidebar { width: 100%; }
+    .week-list { max-height: 200px; }
+    .dashboard-grid { grid-template-columns: 1fr 1fr; }
+    .week-heatmap { grid-template-columns: repeat(7, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">e<span>RPT</span> <small style="font-size:12px;opacity:.6;">v1.0</small></div>
+    <div class="school-badge">
+      <strong>SK Bandar Tawau</strong><br>
+      Rancangan Pengajaran Tahunan · 2026
+    </div>
+    <div class="header-tabs">
+      <button class="tab-btn bi active" onclick="showPanel('dashboard')">📊 Dashboard</button>
+      <button class="tab-btn bi" onclick="showPanel('bi')">🇬🇧 BI Year 3</button>
+      <button class="tab-btn sains" onclick="showPanel('sains')">🔬 Sains Tahun 2</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Maklumat Guru</div>
+      <div class="stat-row">
+        <span>Sekolah</span>
+        <span class="stat-val" style="font-size:11px">SK Bandar Tawau</span>
+      </div>
+      <div class="stat-row">
+        <span>Tahun</span>
+        <span class="stat-val">2026</span>
+      </div>
+      <div class="stat-row">
+        <span>Subjek 1</span>
+        <span class="stat-val pill pill-bi">BI Yr 3</span>
+      </div>
+      <div class="stat-row">
+        <span>Subjek 2</span>
+        <span class="stat-val pill pill-sains">Sains T2</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section" id="sidebar-weeks-bi">
+      <div class="sidebar-title">Minggu — BI Year 3</div>
+      <div class="week-list" id="bi-week-nav"></div>
+    </div>
+
+    <div class="sidebar-section" id="sidebar-weeks-sains" style="display:none">
+      <div class="sidebar-title">Minggu — Sains Tahun 2</div>
+      <div class="week-list" id="sains-week-nav"></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- DASHBOARD PANEL -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="rpt-header">
+        <div class="rpt-title">
+          <h2>Dashboard RPT 2026</h2>
+          <p>Ringkasan Rancangan Pengajaran Tahunan · SK Bandar Tawau</p>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="dash-card">
+          <div class="dkpi bi">43</div>
+          <div class="dlabel">Minggu Pengajaran — BI Year 3</div>
+          <div class="dsub">160 lessons · Get Smart Plus 3</div>
+        </div>
+        <div class="dash-card">
+          <div class="dkpi sains">43</div>
+          <div class="dlabel">Minggu Pengajaran — Sains Tahun 2</div>
+          <div class="dsub">Tema: Hayat · Fizik · Bumi · Teknologi</div>
+        </div>
+        <div class="dash-card">
+          <div class="dkpi gold">2</div>
+          <div class="dlabel">Subjek Dimuatkan</div>
+          <div class="dsub">BI Year 3 + Sains Tahun 2</div>
+        </div>
+      </div>
+
+      <!-- Term Progress -->
+      <div class="timeline" style="margin-bottom:16px">
+        <div class="timeline-header">
+          <span>Kalendar Sekolah 2026 — Minggu Pengajaran</span>
+          <span style="color:var(--text);font-size:12px">Mggu 1–43</span>
+        </div>
+        <div style="padding:14px 18px 6px">
+          <div style="display:flex;gap:10px;font-size:11px;color:var(--text-muted);margin-bottom:8px">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--accent-bi-light);border:1px solid #8ab0d8;display:inline-block"></span> BI Year 3</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--accent-sains-light);border:1px solid #8ac99a;display:inline-block"></span> Sains T2</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#fde8e8;display:inline-block"></span> Cuti/Peperiksaan</span>
+          </div>
+        </div>
+        <div class="week-heatmap" id="heatmap"></div>
+        <div style="padding:10px 18px;font-size:11px;color:var(--text-muted);display:flex;gap:20px;border-top:1px solid var(--border)">
+          <span>🏫 <strong>Penggal 1:</strong> Minggu 2–14</span>
+          <span>📚 <strong>Penggal 2:</strong> Minggu 16–28</span>
+          <span>✏️ <strong>Penggal 3:</strong> Minggu 30–43</span>
+        </div>
+      </div>
+
+      <!-- Focus distribution -->
+      <div class="timeline">
+        <div class="timeline-header">
+          <span>Taburan Fokus — BI Year 3</span>
+        </div>
+        <div class="focus-chart" id="focus-chart"></div>
+      </div>
+    </div>
+
+    <!-- BI PANEL -->
+    <div class="panel" id="panel-bi">
+      <div class="rpt-header">
+        <div class="rpt-title">
+          <h2>Rancangan Pengajaran Tahunan — English Language</h2>
+          <p>Year 3 · SK Bandar Tawau · 2026</p>
+        </div>
+        <span class="pill pill-bi">Get Smart Plus 3</span>
+      </div>
+      <div id="bi-content"></div>
+    </div>
+
+    <!-- SAINS PANEL -->
+    <div class="panel" id="panel-sains">
+      <div class="rpt-header">
+        <div class="rpt-title">
+          <h2>Rancangan Pengajaran Tahunan — Sains</h2>
+          <p>Tahun 2 · SK Bandar Tawau · 2026</p>
+        </div>
+        <span class="pill pill-sains">Sains Hayat · Fizikal · Bahan</span>
+      </div>
+      <div id="sains-content"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  eRPT v1.0 — Dibina untuk SK Bandar Tawau · 2026 &nbsp;|&nbsp;
+  Rancangan Pengajaran Tahunan: BI Year 3 &amp; Sains Tahun 2
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA — BI YEAR 3
+// ═══════════════════════════════════════════════════════
+const biData = [
+  { week:1, date:'12.01.2026–16.01.2026', type:'special', label:'Pengurusan Pembukaan Sekolah / Minggu Pertama', lessons:[] },
+  { week:2, date:'19.01.2026–23.01.2026', unit:'Unit 1: Welcome!', theme:'World of Self, Family and Friends', lessons:[
+    { no:1, focus:'Writing', standards:'1.3.1 Guess meaning of unfamiliar words by visual clues · 2.1.5 Describe people and objects using suitable words', bbm:'Get Smart Plus 3 SB p.5 Act.1 · TB p.18' },
+    { no:2, focus:'Speaking', standards:'2.1.5 Describe people and objects · 1.2.2 Understand specific information of short texts', bbm:'SB p.5 Act.2 · TB p.18–19' },
+    { no:3, focus:'Reading', standards:'3.2.2 Understand specific information of short texts · 3.2.3 Guess meaning from visuals', bbm:'SB p.6 Act.1, p.7 Act.2 · TB p.20' },
+    { no:4, focus:'Writing', standards:'4.2.4 Describe people and objects · 4.1.2 Begin cursive handwriting', bbm:'SB p.6 · TB p.20 · Family flashcards' },
+    { no:5, focus:'Language Arts', standards:'5.3.1 Respond imaginatively through action songs · 4.3.3 Plan, draft simple sentences', bbm:'Write sentence about each pupil on strip' },
+  ]},
+  { week:3, date:'26.01.2026–30.01.2026', unit:'Unit 1: Welcome!', theme:'World of Self, Family and Friends', lessons:[
+    { no:6, focus:'Listening', standards:'1.2.2 Understand specific information · 4.3.1 Use capital letters, full stops and question marks', bbm:'SB p.7 Act.3 · TB p.21 · Vocabulary flashcards' },
+    { no:7, focus:'Speaking', standards:'2.1.5 Describe people and objects · 1.2.5 Understand short supported questions', bbm:'SB p.7 Act.4 · TB p.21' },
+    { no:8, focus:'Reading', standards:'3.2.1 Understand main idea · 3.2.3 Guess meaning from visuals', bbm:'SB p.8 Act.1, p.9 Act.2 · TB p.22' },
+    { no:9, focus:'Writing', standards:'4.3.2 Spell familiar high frequency words · 1.2.1 Understand main idea', bbm:'SB p.9 Act.3–4 · TB p.23 · Sports flashcards' },
+  ]},
+  { week:4, date:'02.02.2026–06.02.2026', unit:'Unit 1: Welcome!', theme:'World of Self, Family and Friends', lessons:[
+    { no:10, focus:'Language Arts', standards:'5.3.1 Action songs on familiar topics · 5.1.1 Simple poems', bbm:'Action flashcards · Online song · Lines of song cut up' },
+    { no:11, focus:'Listening', standards:'1.2.5 Understand short supported questions · 2.2.2 Ask for attention or help', bbm:'SB p.9 Act.5 · TB p.22 · Action flashcards' },
+    { no:12, focus:'Speaking', standards:'2.1.2 Describe basic everyday routines · 1.2.5 Understand short questions', bbm:'SB p.8–9 · TB p.22' },
+    { no:13, focus:'Reading', standards:'3.2.2 Understand specific information · 2.1 Communicate simply', bbm:'SB p.9 Act.3–4 · TB p.23' },
+    { no:14, focus:'Writing', standards:'4.3.1 Capital letters, full stops & question marks · 4.3.2 Spell high frequency words', bbm:'SB p.11 Act.1 · TB p.27 · Family photos' },
+  ]},
+  { week:5, date:'09.02.2026–13.02.2026', unit:'Unit 1: Welcome!', theme:'World of Self, Family and Friends', lessons:[
+    { no:15, focus:'Language Arts', standards:'5.2.1 Name people, things, actions in texts · 2.3.1 Narrate very short basic stories', bbm:'SB p.12–13 · TB p.19, p.28–29' },
+    { no:16, focus:'Reading', standards:'3.2.2 Understand specific info of short texts · 4.3.1 Capital letters & punctuation', bbm:'SB p.10 · TB p.24 · Self-assessment' },
+    { no:17, focus:'Listening', standards:'1.2.2 Understand specific information · 1.1 Recognise target language sounds', bbm:'SB p.12 · TB p.28' },
+    { no:18, focus:'Speaking', standards:'2.1.2 Find out & describe basic everyday routines · 1.2.5 Understand short questions', bbm:'SB p.11 · TB p.26' },
+    { no:19, focus:'Reading', standards:'3.2.2 Understand specific information · 2.1 Communicate simply', bbm:'SB p.11 · TB p.26' },
+  ]},
+  { week:6, date:'16.02.2026–20.02.2026', type:'holiday', label:'Cuti Tahun Baru Cina · 17–18/2/2026', lessons:[] },
+  { week:7, date:'23.02.2026–27.02.2026', unit:'Unit 2: Everyday', theme:'World of Self, Family and Friends', lessons:[
+    { no:20, focus:'Writing', standards:'4.3.3 Plan, draft and write simple sentences · 4.3.1 Capital letters, full stops', bbm:'Flashcards for daily routine' },
+    { no:21, focus:'Language Arts', standards:'5.3.1 Action songs · 4.3.3 Plan, draft simple sentences', bbm:'Song about daily routine' },
+    { no:22, focus:'Listening', standards:'1.2.2 Understand specific information · 4.3.1 Use capital letters and punctuation', bbm:'SB Unit 2 · TB Unit 2' },
+    { no:23, focus:'Speaking', standards:'2.1.2 Find out about daily routines · 1.2.5 Short questions', bbm:'SB Unit 2 · TB Unit 2' },
+    { no:24, focus:'Reading', standards:'3.2.2 Understand specific information · 3.2.3 Guess meaning from clues', bbm:'SB Unit 2 · TB Unit 2' },
+  ]},
+  { week:8, date:'02.03.2026–06.03.2026', unit:'Unit 2: Everyday', theme:'World of Self, Family and Friends', lessons:[
+    { no:24, focus:'Reading', standards:'3.2.4 Use picture dictionary to find & categorise words · 3.2.2 Understand specific info', bbm:'SB p.18 · TB p.36' },
+    { no:25, focus:'Writing', standards:'4.3 Communicate with appropriate language form · 4.3.1 Capital letters and punctuation', bbm:'SB Unit 2 · TB Unit 2' },
+    { no:26, focus:'Language Arts', standards:'5.1.2 Say words in simple texts · 1.2.3 Understand with support', bbm:'"The Going to school" song · SB Unit 2' },
+    { no:27, focus:'Listening', standards:'1.2.1 Understand main idea · 1.2.2 Understand specific info', bbm:'SB · TB Unit 2' },
+    { no:28, focus:'Speaking', standards:'2.1.2 Describe basic everyday routines · 1.2.5 Short questions', bbm:'SB · TB Unit 2' },
+  ]},
+  { week:9, date:'09.03.2026–13.03.2026', unit:'Unit 2: Everyday', theme:'World of Self, Family and Friends', lessons:[
+    { no:29, focus:'Reading', standards:'3.2.3 Guess meaning of unfamiliar words from visuals · 3.2.2 Understand specific info', bbm:'SB p.115 · TB p.178 · Vocabulary flashcards' },
+    { no:30, focus:'Writing', standards:'4.3.2 Spell familiar high frequency words · 4.3.1 Punctuation', bbm:'SB Unit 2 · TB Unit 2' },
+    { no:31, focus:'Language Arts', standards:'5.2.1 Name people, things, actions · 2.3.1 Narrate short basic stories', bbm:'SB Unit 2' },
+    { no:32, focus:'Listening', standards:'1.2.2 Understand specific info · 1.2.5 Short supported questions', bbm:'SB · TB Unit 2' },
+    { no:33, focus:'Speaking', standards:'2.1.2 Describe basic everyday routines · 2.1 Communicate simply', bbm:'SB · TB Unit 2' },
+  ]},
+  { week:10, date:'16.03.2026–18.03.2026', type:'holiday', label:'Cuti Hari Raya Aidilfitri · 21–22/3/2026', lessons:[] },
+  { week:11, date:'30.03.2026–03.04.2026', unit:'Unit 3: Right now', theme:'World of Self, Family and Friends', lessons:[
+    { no:34, focus:'Speaking', standards:'2.1.5 Describe people and objects · 1.1.1 Recognise target language phonemes', bbm:'SB p.25 · TB p.46–47' },
+    { no:35, focus:'Writing', standards:'4.3 Communicate appropriate language form · 4.3.2 Spell high frequency words', bbm:'SB Unit 3 · TB Unit 3' },
+    { no:36, focus:'Language Arts', standards:'5.3.1 Action songs · 2.1.5 Describe using suitable words', bbm:'Circles of paper (12cm diameter) · Paper clip' },
+    { no:37, focus:'Listening', standards:'1.2.2 Understand specific info · 2.1.5 Describe people and objects', bbm:'SB Unit 3 · TB Unit 3' },
+  ]},
+  { week:12, date:'06.04.2026–10.04.2026', unit:'Unit 3: Right now', theme:'World of Self, Family and Friends', lessons:[
+    { no:42, focus:'Language Arts', standards:'5.3.1 Action songs on familiar topics · 2.1.5 Describe people and objects', bbm:'Words & music to "One finger, one thumb" · TB Unit 3' },
+    { no:43, focus:'Listening', standards:'1.2.2 Understand specific info · 2.1.5 Describe using suitable words', bbm:'SB · TB Unit 3' },
+    { no:44, focus:'Speaking', standards:'2.1.5 Describe people and objects · 1.2.5 Short supported questions', bbm:'SB · TB Unit 3' },
+    { no:45, focus:'Reading', standards:'3.2.2 Understand specific info · 3.2.3 Guess meaning from visuals', bbm:'SB · TB Unit 3' },
+    { no:46, focus:'Writing', standards:'4.3.2 Spell high frequency words · 4.3.1 Capital letters & punctuation', bbm:'SB · TB Unit 3' },
+  ]},
+  { week:13, date:'13.04.2026–17.04.2026', unit:'Unit 3: Right now', theme:'World of Self, Family and Friends', lessons:[
+    { no:47, focus:'Language Arts', standards:'5.3.1 Action songs · 4.3 Communicate appropriate form · 4.3.2 Spell high frequency words', bbm:'Jigsaw template (timvandeval.com)' },
+    { no:48, focus:'Listening', standards:'1.2.2 Understand specific info · 1.2.5 Short questions', bbm:'SB Unit 3 · TB Unit 3' },
+    { no:49, focus:'Speaking', standards:'2.1.5 Describe people and objects · 2.1.2 Describe basic routines', bbm:'SB Unit 3 · TB Unit 3' },
+    { no:50, focus:'Reading', standards:'3.2.2 Understand specific info · 3.2.3 Guess meaning from clues', bbm:'SB Unit 3 · TB Unit 3' },
+    { no:51, focus:'Writing', standards:'4.3.2 Spell high frequency words accurately in guided writing', bbm:'SB Unit 3 · TB Unit 3' },
+  ]},
+  { week:14, date:'20.04.2026–24.04.2026', unit:'Unit 4: Year in, year out', theme:'World of Knowledge', lessons:[
+    { no:52, focus:'Writing', standards:'4.3.2 Spell familiar high frequency words · 2.1.2 Describe basic everyday routines', bbm:'SB p.36–37 · TB p.63 · Magnetic letters · Worksheet for diaries' },
+    { no:53, focus:'Language Arts', standards:'5.2.1 Name people, things, actions · 2.3.1 Narrate short stories', bbm:'SB p.36–37 · TB Unit 4' },
+    { no:54, focus:'Listening', standards:'1.2.5 Understand short supported questions · 1.2.2 Understand specific info', bbm:'SB Unit 4 · TB Unit 4' },
+    { no:55, focus:'Speaking', standards:'2.1.2 Describe everyday routines · 2.1.5 Describe people and objects', bbm:'SB Unit 4 · TB Unit 4' },
+  ]},
+  { week:15, date:'27.04.2026–30.04.2026', unit:'Unit 4: Year in, year out', theme:'World of Knowledge', lessons:[
+    { no:57, focus:'Writing', standards:'4.3.3 Plan, draft and write simple sentences · 1.2.5 Understand short questions', bbm:'SB p.38 · Poster paper per group · Flashcards' },
+    { no:58, focus:'Language Arts', standards:'5.2.1 Name people, things, actions · 1.2 Understand meaning', bbm:'SB Unit 4 · TB Unit 4' },
+    { no:59, focus:'Listening', standards:'1.2.2 Understand specific info · 1.2.5 Short questions', bbm:'SB Unit 4 · TB Unit 4' },
+    { no:60, focus:'Speaking', standards:'2.1.2 Describe basic everyday routines · 2.1.5 Describe people', bbm:'SB Unit 4 · TB Unit 4' },
+  ]},
+  { week:16, date:'04.05.2026–08.05.2026', unit:'Unit 4: Year in, year out', theme:'World of Knowledge', lessons:[
+    { no:61, focus:'Reading', standards:'3.2.2 Understand specific info and details · 3.3.1 Read and enjoy A1 fiction/non-fiction', bbm:'SB p.40 · TB p.66–67 · Coins' },
+    { no:62, focus:'Writing', standards:'4.3.2 Spell high frequency words · 4.3 Communicate appropriate language form', bbm:'SB Unit 4 · TB Unit 4' },
+    { no:63, focus:'Language Arts', standards:'5.3.1 Action songs on familiar topics · 2.1.5 Describe people', bbm:'SB Unit 4 · TB Unit 4' },
+    { no:64, focus:'Listening', standards:'1.2.2 Understand specific info · 1.2 Understand meaning', bbm:'SB Unit 4 · TB Unit 4' },
+    { no:65, focus:'Speaking', standards:'2.1.2 Describe basic everyday routines · 2.1.5 Describe objects', bbm:'SB Unit 4 · TB Unit 4' },
+  ]},
+  { week:17, date:'11.05.2026–15.05.2026', unit:'Unit 5: My new house', theme:'World of self, family and friends', lessons:[
+    { no:66, focus:'Speaking', standards:'2.1.5 Describe people and objects · 1.2.5 Understand short questions', bbm:'SB p.45, p.47 · TB p.74 · Clothes flashcards' },
+    { no:67, focus:'Writing', standards:'4.3 Communicate appropriate form · 4.3.1 Capital letters & punctuation', bbm:'SB Unit 5 · TB Unit 5' },
+    { no:68, focus:'Language Arts', standards:'5.3.1 Action songs · 2.1.5 Describe objects', bbm:'SB Unit 5 · TB Unit 5' },
+    { no:69, focus:'Listening', standards:'1.2.5 Understand short supported questions · 1.2.2 Understand specific info', bbm:'SB Unit 5 · TB Unit 5' },
+    { no:70, focus:'Reading', standards:'3.2.2 Understand specific info · 3.2.3 Guess meaning from visuals', bbm:'SB Unit 5 · TB Unit 5' },
+  ]},
+  { week:18, date:'18.05.2026–22.05.2026', unit:'Unit 5: My new house', theme:'World of self, family and friends', lessons:[
+    { no:71, focus:'Speaking', standards:'2.1.1 Ask about and express basic opinions · 1.2.5 Understand short questions', bbm:'SB p.47 · TB p.77 · Small pieces of paper/card' },
+    { no:72, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences · 4.3 Appropriate language form', bbm:'SB Unit 5 · TB Unit 5' },
+    { no:73, focus:'Language Arts', standards:'5.3.1 Action songs · 5.2.1 Name people, things, actions', bbm:'SB Unit 5 · TB Unit 5' },
+    { no:74, focus:'Listening', standards:'1.2.5 Short supported questions · 1.2.2 Specific information', bbm:'SB Unit 5 · TB Unit 5' },
+    { no:75, focus:'Reading', standards:'3.2.2 Specific information · 3.2.3 Guess meaning from visuals', bbm:'SB Unit 5 · TB Unit 5' },
+  ]},
+  { week:19, date:'08.06.2026–12.06.2026', unit:'Unit 5: My new house', theme:'World of self, family and friends', lessons:[
+    { no:76, focus:'Speaking', standards:'2.1.1 Ask about and express basic opinions · 1.2.5 Understand short questions', bbm:'SB p.47 · TB p.77 · Small pieces of paper/card' },
+    { no:77, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences · 4.3 Appropriate language form', bbm:'SB Unit 5 · TB Unit 5' },
+    { no:78, focus:'Language Arts', standards:'5.3.1 Action songs · 2.1.1 Express basic opinions', bbm:'SB Unit 5 · TB Unit 5' },
+    { no:79, focus:'Listening', standards:'1.2.5 Short supported questions · 1.2.2 Specific info', bbm:'SB Unit 5 · TB Unit 5' },
+    { no:80, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning', bbm:'SB Unit 5 · TB Unit 5' },
+  ]},
+  { week:20, date:'15.06.2026–19.06.2026', unit:'Unit 6: Food, please!', theme:'World of self, family and friends', lessons:[
+    { no:81, focus:'Listening', standards:'1.2.2 Understand specific info of short texts · 2.1.1 Ask about and express basic opinions', bbm:'SB p.55 · TB p.88–89 · Food flashcards' },
+    { no:82, focus:'Speaking', standards:'2.1.1 Express basic opinions · 1.2.5 Understand short questions', bbm:'SB Unit 6 · TB Unit 6' },
+    { no:83, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning from visuals', bbm:'SB Unit 6 · TB Unit 6' },
+    { no:84, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences · 4.3 Appropriate form', bbm:'SB Unit 6 · TB Unit 6' },
+    { no:85, focus:'Language Arts', standards:'5.3.1 Action songs · 2.1.1 Express basic opinions', bbm:'SB Unit 6 · TB Unit 6' },
+  ]},
+  { week:21, date:'22.06.2026–26.06.2026', unit:'Unit 6: Food, please!', theme:'World of self, family and friends', lessons:[
+    { no:85, focus:'Language Arts', standards:'5.3.1 Respond imaginatively through action songs · 2.1.1 Express basic opinions', bbm:'SB p.117 · TB p.180' },
+    { no:86, focus:'Listening', standards:'1.2.2 Specific info · 2.1.1 Express opinions', bbm:'SB Unit 6 · TB Unit 6' },
+    { no:87, focus:'Speaking', standards:'2.1.1 Express basic opinions · 2.1.5 Describe objects', bbm:'SB Unit 6 · TB Unit 6' },
+    { no:88, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning', bbm:'SB Unit 6 · TB Unit 6' },
+    { no:89, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences · 3.2 Understand texts', bbm:'SB Unit 6 · TB Unit 6' },
+  ]},
+  { week:22, date:'29.06.2026–03.07.2026', unit:'Unit 6: Food, please!', theme:'World of Knowledge', lessons:[
+    { no:89, focus:'Writing', standards:'4.3.3 Plan, draft and write simple sentences · 3.2.2 Understand specific info', bbm:'SB p.58 · TB Unit 6 · Computers/magazines · Pictures of dishes' },
+    { no:90, focus:'Language Arts', standards:'5.3.1 Action songs · 2.3.1 Narrate short stories', bbm:'SB Unit 6 · TB Unit 6' },
+    { no:91, focus:'Listening', standards:'1.2.2 Specific info · 1.2.5 Short questions', bbm:'SB Unit 6 · TB Unit 6' },
+    { no:92, focus:'Speaking', standards:'2.1.1 Express basic opinions · 2.1.5 Describe objects', bbm:'SB Unit 6 · TB Unit 6' },
+    { no:93, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning', bbm:'SB Unit 6 · TB Unit 6' },
+  ]},
+  { week:23, date:'06.07.2026–10.07.2026', unit:'Unit 6: Food, please!', theme:'World of self, family and friends', lessons:[
+    { no:94, focus:'Writing', standards:'4.3.3 Plan, draft and write simple sentences · 2.3.1 Introduce self and others to audience', bbm:'SB p.60 · TB p.94–95' },
+    { no:95, focus:'Language Arts', standards:'5.3.1 Action songs · 2.3.1 Introduce self to audience', bbm:'SB Unit 6 · TB Unit 6' },
+    { no:96, focus:'Listening', standards:'1.2.2 Specific info · 1.2 Understand meaning', bbm:'SB Unit 6 · TB Unit 6' },
+    { no:97, focus:'Speaking', standards:'2.3.1 Introduce self and others · 2.1.1 Express basic opinions', bbm:'SB Unit 6 · TB Unit 6' },
+    { no:98, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning', bbm:'SB Unit 6 · TB Unit 6' },
+  ]},
+  { week:24, date:'13.07.2026–17.07.2026', unit:'Unit 7: Out and about', theme:'World of Stories', lessons:[
+    { no:99, focus:'Reading', standards:'3.2.2 Understand specific info of short texts · 1.1.1 Recognise target language phonemes', bbm:'SB p.66 · TB p.104' },
+    { no:100, focus:'Writing', standards:'4.3.2 Spell high frequency words · 4.3.1 Capital letters & punctuation', bbm:'SB Unit 7 · TB Unit 7' },
+    { no:101, focus:'Language Arts', standards:'5.3.1 Action songs · 2.1.5 Describe objects', bbm:'SB Unit 7 · TB Unit 7' },
+    { no:102, focus:'Listening', standards:'1.2.2 Specific info · 1.1.1 Recognise phonemes', bbm:'SB Unit 7 · TB Unit 7' },
+    { no:103, focus:'Speaking', standards:'2.1.5 Describe people and objects · 2.3.1 Introduce self and others', bbm:'SB Unit 7 · TB Unit 7' },
+  ]},
+  { week:25, date:'20.07.2026–24.07.2026', unit:'Unit 7: Out and about', theme:'World of Stories', lessons:[
+    { no:104, focus:'Reading', standards:'3.2.1 Understand main idea · 3.2 Understand variety of texts', bbm:'SB p.68 · TB p.106 · Cut up texts' },
+    { no:105, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences · 3.2.3 Guess meaning', bbm:'SB Unit 7 · TB Unit 7' },
+    { no:106, focus:'Language Arts', standards:'5.3.1 Action songs · 2.3.1 Narrate short stories', bbm:'SB Unit 7 · TB Unit 7' },
+    { no:107, focus:'Listening', standards:'1.2.2 Specific info · 1.2.5 Short questions', bbm:'SB Unit 7 · TB Unit 7' },
+    { no:108, focus:'Speaking', standards:'2.1.5 Describe people and objects · 2.3.1 Introduce self and others', bbm:'SB Unit 7 · TB Unit 7' },
+  ]},
+  { week:26, date:'27.07.2026–31.07.2026', unit:'Unit 7: Out and about', theme:'World of Stories', lessons:[
+    { no:109, focus:'Reading', standards:'3.2.1 Understand main idea of short texts · 3.2.3 Guess meaning of unfamiliar words', bbm:'SB p.71 · TB p.110 · Flashcards of signs' },
+    { no:110, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences · 4.3 Appropriate language form', bbm:'SB Unit 7 · TB Unit 7' },
+    { no:111, focus:'Language Arts', standards:'5.3.1 Action songs · 5.2.1 Name people, things, actions', bbm:'SB Unit 7 · TB Unit 7' },
+    { no:112, focus:'Listening', standards:'1.2.2 Specific info · 1.2.5 Short questions', bbm:'SB Unit 7 · TB Unit 7' },
+  ]},
+  { week:27, date:'03.08.2026–07.08.2026', unit:'Unit 8: Where were you yesterday?', theme:'World of self, family and friends', lessons:[
+    { no:113, focus:'Listening', standards:'1.2.2 Understand specific info of short texts · 1.2.5 Understand short supported questions', bbm:'SB p.75 · TB p.116 · Vocabulary flashcards (places & time)' },
+    { no:114, focus:'Speaking', standards:'2.1.5 Describe people and objects · 2.3.1 Introduce self and others', bbm:'SB Unit 8 · TB Unit 8' },
+    { no:115, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning', bbm:'SB Unit 8 · TB Unit 8' },
+    { no:116, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences · 4.3 Appropriate form', bbm:'SB Unit 8 · TB Unit 8' },
+    { no:117, focus:'Language Arts', standards:'5.3.1 Action songs · 2.1.5 Describe objects', bbm:'SB Unit 8 · TB Unit 8' },
+  ]},
+  { week:28, date:'10.08.2026–14.08.2026', unit:'Unit 8: Where were you yesterday?', theme:'World of self, family and friends', lessons:[
+    { no:118, focus:'Listening', standards:'1.2.2 Specific info of short texts · 2.1.1 Give a short sequence of basic directions', bbm:'SB p.77 · TB p.119 · Blank word cards' },
+    { no:119, focus:'Speaking', standards:'2.1.1 Give a short sequence of basic directions · 2.1.5 Describe objects', bbm:'SB Unit 8 · TB Unit 8' },
+    { no:120, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning', bbm:'SB Unit 8 · TB Unit 8' },
+    { no:121, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences · 4.3 Appropriate form', bbm:'SB Unit 8 · TB Unit 8' },
+    { no:122, focus:'Language Arts', standards:'5.3.1 Action songs · 2.3.1 Introduce self and others', bbm:'SB Unit 8 · TB Unit 8' },
+  ]},
+  { week:29, date:'17.08.2026–21.08.2026', unit:'Unit 8: Where were you yesterday?', theme:'World of self, family and friends', lessons:[
+    { no:123, focus:'Listening', standards:'1.2.2 Specific info · 2.1.1 Give short sequence of basic directions', bbm:'SB p.80 · TB p.122 · Flashcards of lesson vocabulary' },
+    { no:124, focus:'Speaking', standards:'2.1.1 Basic directions · 2.1.5 Describe objects', bbm:'SB Unit 8 · TB Unit 8' },
+    { no:125, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning', bbm:'SB Unit 8 · TB Unit 8' },
+    { no:126, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences · 4.3 Appropriate form', bbm:'SB Unit 8 · TB Unit 8' },
+    { no:127, focus:'Language Arts', standards:'5.3.1 Action songs · 2.3.1 Narrate short stories', bbm:'SB Unit 8 · TB Unit 8' },
+  ]},
+  { week:30, date:'24.08.2026–28.08.2026', unit:'Unit 8: Where were you yesterday?', theme:'World of Knowledge', lessons:[
+    { no:128, focus:'Reading', standards:'3.2.2 Specific info of short texts · 1.2.5 Understand short supported questions', bbm:'SB p.84 · TB p.128–129' },
+    { no:129, focus:'Writing', standards:'4.3.2 Spell high frequency words · 4.3 Appropriate form', bbm:'SB Unit 8 · TB Unit 8' },
+    { no:130, focus:'Language Arts', standards:'5.3.1 Action songs · 2.3.1 Narrate short stories', bbm:'SB Unit 8 · TB Unit 8' },
+    { no:131, focus:'Listening', standards:'1.2.2 Specific info · 1.2.5 Short questions', bbm:'SB Unit 8 · TB Unit 8' },
+  ]},
+  { week:31, date:'07.09.2026–11.09.2026', unit:'Unit 9: On holiday', theme:'World of self, family and friends', lessons:[
+    { no:132, focus:'Writing', standards:'4.3.3 Plan, draft and write simple sentences · 3.2.2 Understand specific info', bbm:'SB p.87 · TB p.132–133 · Pictures from Lesson 130 · Glue' },
+    { no:133, focus:'Language Arts', standards:'5.3.1 Action songs · 2.3.1 Narrate short stories', bbm:'SB Unit 9 · TB Unit 9' },
+    { no:134, focus:'Listening', standards:'1.2.2 Specific info · 1.2.5 Short questions', bbm:'SB Unit 9 · TB Unit 9' },
+    { no:135, focus:'Speaking', standards:'2.1.5 Describe people and objects · 2.3.1 Narrate short stories', bbm:'SB Unit 9 · TB Unit 9' },
+    { no:136, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning', bbm:'SB Unit 9 · TB Unit 9' },
+  ]},
+  { week:32, date:'14.09.2026–18.09.2026', unit:'Unit 9: On holiday', theme:'World of self, family and friends', lessons:[
+    { no:137, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences · 4.3.2 Spell high frequency words', bbm:'SB p.89 · TB p.135 · Worksheet' },
+    { no:138, focus:'Language Arts', standards:'5.3.1 Action songs · 2.3.1 Narrate short stories', bbm:'SB Unit 9 · TB Unit 9' },
+    { no:139, focus:'Listening', standards:'1.2.2 Specific info · 1.2.5 Short questions', bbm:'SB Unit 9 · TB Unit 9' },
+    { no:140, focus:'Speaking', standards:'2.1.5 Describe people and objects · 2.3.1 Narrate short stories', bbm:'SB Unit 9 · TB Unit 9' },
+    { no:141, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning', bbm:'SB Unit 9 · TB Unit 9' },
+  ]},
+  { week:33, date:'21.09.2026–25.09.2026', unit:'Unit 9: On holiday', theme:'World of self, family and friends', lessons:[
+    { no:141, focus:'Reading', standards:'3.2.2 Specific info of short texts · 4.2.5 Connect sentences using basic coordinating conjunctions', bbm:'SB p.91 · TB p.138 · Worksheets · Questions cut up' },
+    { no:142, focus:'Writing', standards:'4.2.5 Connect sentences using coordinating conjunctions · 4.2 Communicate basic info', bbm:'SB Unit 9 · TB Unit 9' },
+    { no:143, focus:'Language Arts', standards:'5.3.1 Action songs · 2.3.1 Narrate short stories', bbm:'SB Unit 9 · TB Unit 9' },
+    { no:144, focus:'Listening', standards:'1.2.2 Specific info · 1.2.5 Short questions', bbm:'SB Unit 9 · TB Unit 9' },
+    { no:145, focus:'Speaking', standards:'2.1.5 Describe objects · 2.3.1 Narrate short stories', bbm:'SB Unit 9 · TB Unit 9' },
+  ]},
+  { week:34, date:'28.09.2026–02.10.2026', type:'exam', label:'Peperiksaan / Penilaian Penggal 3', lessons:[] },
+  { week:35, date:'05.10.2026–09.10.2026', unit:'Unit 10: The world around us', theme:'World of Knowledge', lessons:[
+    { no:146, focus:'Speaking', standards:'2.1.5 Describe people and objects using suitable words · 1.2.2 Understand specific info', bbm:'SB p.95 · TB p.144–145 · Animal flashcards' },
+    { no:147, focus:'Reading', standards:'3.2.2 Specific info of short texts · 4.2.5 Connect sentences', bbm:'SB Unit 10 · TB Unit 10' },
+    { no:148, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences · 4.3 Appropriate form', bbm:'SB Unit 10 · TB Unit 10' },
+    { no:149, focus:'Language Arts', standards:'5.3.1 Action songs · 2.3.1 Narrate short stories', bbm:'SB Unit 10 · TB Unit 10' },
+    { no:150, focus:'Listening', standards:'1.2.2 Specific info · 1.2.5 Short questions', bbm:'SB Unit 10 · TB Unit 10' },
+  ]},
+  { week:36, type:'exam', label:'Peperiksaan / Penilaian', date:'12.10.2026–16.10.2026', lessons:[] },
+  { week:37, date:'19.10.2026–23.10.2026', unit:'Unit 10: The world around us', theme:'World of Knowledge', lessons:[
+    { no:150, focus:'Listening', standards:'1.2.5 Understand short supported questions · 3.2.2 Specific info and details', bbm:'SB p.97 · TB p.147' },
+    { no:151, focus:'Speaking', standards:'2.1.5 Describe people and objects · 2.1 Communicate simply', bbm:'SB Unit 10 · TB Unit 10 · Animals flashcards · Blank cards' },
+    { no:152, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning from visuals', bbm:'SB Unit 10 · TB Unit 10' },
+    { no:153, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences · 4.3 Appropriate form', bbm:'SB Unit 10 · TB Unit 10' },
+    { no:154, focus:'Language Arts', standards:'5.3.1 Action songs · 2.3.1 Narrate short stories', bbm:'SB Unit 10 · TB Unit 10' },
+  ]},
+  { week:38, type:'exam', label:'Peperiksaan / Penilaian', date:'26.10.2026–30.10.2026', lessons:[] },
+  { week:39, date:'02.11.2026–06.11.2026', unit:'Unit 10: The world around us', theme:'World of Knowledge', lessons:[
+    { no:155, focus:'Listening', standards:'1.2.5 Understand short supported questions · 3.2.2 Specific info', bbm:'SB p.99 · TB p.149 · Pupils\' worksheets from Lesson 153' },
+    { no:156, focus:'Speaking', standards:'2.1.5 Describe people and objects · 2.1 Communicate simply', bbm:'SB Unit 10 · TB Unit 10' },
+    { no:157, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning', bbm:'SB Unit 10 · TB Unit 10' },
+    { no:158, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences', bbm:'SB Unit 10 · TB Unit 10' },
+    { no:159, focus:'Language Arts', standards:'5.3.1 Action songs · 5.2.1 Name people, things, actions', bbm:'SB Unit 10 · TB Unit 10' },
+  ]},
+  { week:40, type:'exam', label:'Peperiksaan Akhir Tahun', date:'09.11.2026–13.11.2026', lessons:[] },
+  { week:41, type:'exam', label:'Semakan & Pemulihan', date:'16.11.2026–20.11.2026', lessons:[] },
+  { week:42, date:'23.11.2026–27.11.2026', unit:'Unit 10: The world around us', theme:'World of Knowledge', lessons:[
+    { no:156, focus:'Speaking', standards:'2.1.5 Describe people and objects using suitable words · 2.1 Communicate simply', bbm:'SB Unit 10 · TB Unit 10' },
+    { no:157, focus:'Reading', standards:'3.2.2 Specific info · 3.2.3 Guess meaning', bbm:'SB Unit 10 · TB Unit 10' },
+    { no:158, focus:'Writing', standards:'4.3.3 Plan, draft simple sentences', bbm:'SB Unit 10 · TB Unit 10' },
+    { no:159, focus:'Language Arts', standards:'5.3.1 Action songs · 5.2.1 Name people, things, actions', bbm:'SB Unit 10 · TB Unit 10' },
+    { no:160, focus:'Writing', standards:'4.3.3 Plan, draft and write simple sentences · 3.2 Understand variety of texts', bbm:'SB p.119 · TB p.182 · Pictures of camels · Malaysian animals flashcards' },
+  ]},
+  { week:43, date:'30.11.2026–04.12.2026', type:'special', label:'Pengurusan Akhir Tahun', lessons:[] },
+];
+
+// ═══════════════════════════════════════════════════════
+// DATA — SAINS TAHUN 2
+// ═══════════════════════════════════════════════════════
+const sainsData = [
+  { week:1, date:'12.01.2026–16.01.2026', type:'special', label:'Minggu Orientasi', unit:'', sk:'', lessons:[] },
+  { week:2, date:'19.01.2026–30.01.2026', tema:'Sains Hayat', unit:'Unit 3.0: Manusia', sk:'3.1 Pembiakan dan Tumbesaran Manusia',
+    sp:['Menyatakan cara manusia membiak','Menerangkan perubahan yang berlaku pada diri sejak dilahirkan (saiz, tinggi, berat)','Menyatakan bahawa anak mewarisi ciri daripada ibu, bapa atau keturunan'],
+    tp:[
+      { lv:1, desc:'Menyatakan manusia membiak dengan cara melahirkan anak.' },
+      { lv:2, desc:'Memerihalkan perubahan yang berlaku pada diri sejak dilahirkan.' },
+      { lv:3, desc:'Menjelaskan melalui contoh ciri yang diwarisi daripada ibu, bapa atau keturunan.' },
+      { lv:4, desc:'Mengitlak bahawa ciri yang diwarisi adalah daripada keturunan berdasarkan salasilah keluarga.' },
+      { lv:5, desc:'Membuat rumusan bahawa tumbesaran setiap individu berbeza walaupun pada usia yang sama.' },
+      { lv:6, desc:'Berkomunikasi secara kreatif untuk meramal ciri yang diwarisi berdasarkan ciri ibu dan bapa.' },
+    ],
+    catatan:'Penekanan kepada kemahiran memerhati, mengukur dan menggunakan nombor serta berkomunikasi. Menggalakkan pemikiran murid ke arah membuat rumusan bahawa tumbesaran berbeza antara individu.'
+  },
+  { week:4, date:'02.02.2026–06.02.2026', tema:'Sains Hayat', unit:'Unit 4.0: Haiwan', sk:'4.1 Pembiakan dan Tumbesaran Haiwan',
+    sp:['Menyatakan cara haiwan membiak','Menyatakan perubahan tumbesaran haiwan dengan memerhati kitar hidup haiwan','Menjelaskan dengan contoh anak haiwan yang menyerupai induknya dan yang tidak'],
+    tp:[
+      { lv:1, desc:'Menyatakan haiwan yang bertelur dan haiwan yang melahirkan anak.' },
+      { lv:2, desc:'Memerihalkan perubahan tumbesaran haiwan melalui kitar hidup.' },
+      { lv:3, desc:'Menjelaskan perbezaan anak haiwan yang menyerupai dan tidak menyerupai induknya.' },
+      { lv:4, desc:'Mengelas haiwan berdasarkan cara membiak dan kitar hidup.' },
+      { lv:5, desc:'Membuat rumusan tentang perubahan yang berlaku semasa tumbesaran haiwan.' },
+      { lv:6, desc:'Berkomunikasi secara kreatif dan inovatif tentang peringkat tumbesaran haiwan.' },
+    ],
+    catatan:'Penekanan kepada kemahiran memerhati, mengelas dan berkomunikasi. Menggalakkan murid ke arah aktiviti mengelas haiwan berdasarkan cara pembiakan.'
+  },
+  { week:6, date:'16.02.2026–20.02.2026', type:'holiday', label:'Cuti Tahun Baru Cina (17–18/2/2026)', tema:'', unit:'', sk:'', sp:[], tp:[], catatan:'' },
+  { week:7, date:'23.02.2026–06.03.2026', tema:'Sains Hayat', unit:'Unit 4.0: Haiwan (sambungan)', sk:'4.1 Pembiakan dan Tumbesaran Haiwan (sambungan)',
+    sp:['Menyatakan cara haiwan membiak (lanjutan)','Menyatakan perubahan tumbesaran haiwan','Menjelaskan anak haiwan yang menyerupai/tidak menyerupai induknya'],
+    tp:[
+      { lv:1, desc:'Menyatakan haiwan yang bertelur dan haiwan yang melahirkan anak.' },
+      { lv:2, desc:'Memerihalkan perubahan tumbesaran haiwan.' },
+      { lv:3, desc:'Menjelaskan perbezaan anak haiwan.' },
+      { lv:4, desc:'Mengelas haiwan berdasarkan cara membiak.' },
+      { lv:5, desc:'Membuat rumusan tentang tumbesaran haiwan.' },
+      { lv:6, desc:'Berkomunikasi secara kreatif tentang peringkat tumbesaran.' },
+    ],
+    catatan:'Sambungan topik pembiakan dan tumbesaran haiwan.'
+  },
+  { week:10, date:'16.03.2026–20.03.2026', tema:'Sains Hayat', unit:'Unit 5.0: Tumbuhan', sk:'5.1 Tumbesaran Tumbuhan',
+    sp:['Menyatakan keperluan asas untuk biji benih bercambah','Merekod perubahan tumbesaran tumbuhan dari percambahan biji benih','Membuat kesimpulan keperluan asas untuk tumbesaran tumbuhan (penyiasatan)'],
+    tp:[
+      { lv:1, desc:'Menyatakan keperluan biji benih untuk bercambah.' },
+      { lv:2, desc:'Memerihalkan perubahan tumbesaran tumbuhan dari percambahan.' },
+      { lv:3, desc:'Menjelaskan faktor yang mempengaruhi percambahan biji benih.' },
+      { lv:4, desc:'Membuat kesimpulan keperluan asas tumbesaran tumbuhan melalui penyiasatan.' },
+      { lv:5, desc:'Membuat rumusan kepentingan tumbuhan kepada manusia dan haiwan.' },
+      { lv:6, desc:'Berkomunikasi secara kreatif tentang kepentingan tumbuhan.' },
+    ],
+    catatan:'Penekanan kepada kemahiran memerhati, mengukur dan berkomunikasi. Murid menjalankan penyiasatan tentang percambahan biji benih.'
+  },
+  { week:10, date:'21.03.2026–22.03.2026', type:'holiday', label:'Cuti Hari Raya Aidilfitri (21–22/3/2026)', tema:'', unit:'', sk:'', sp:[], tp:[], catatan:'' },
+  { week:14, date:'20.04.2026–08.05.2026', tema:'Sains Fizikal', unit:'Unit 6.0: Cahaya', sk:'6.1 Terang dan Gelap',
+    sp:['Menyatakan sumber cahaya','Menunjuk cara pembentukan bayang-bayang melalui aktiviti','Mencipta permainan bayang-bayang'],
+    tp:[
+      { lv:1, desc:'Mengenal pasti sumber cahaya.' },
+      { lv:2, desc:'Memerihalkan pembentukan bayang-bayang.' },
+      { lv:3, desc:'Menjelaskan faktor yang mempengaruhi saiz bayang-bayang.' },
+      { lv:4, desc:'Membuat kesimpulan tentang pembentukan bayang-bayang melalui penyiasatan.' },
+      { lv:5, desc:'Membuat rumusan kepentingan cahaya.' },
+      { lv:6, desc:'Mencipta permainan bayang-bayang secara kreatif.' },
+    ],
+    catatan:'Penekanan kepada kemahiran memerhati dan berkomunikasi. Menggalakkan pemikiran murid ke arah kepentingan cahaya dalam aktiviti seharian.'
+  },
+  { week:18, date:'18.05.2026–12.06.2026', tema:'Sains Fizikal', unit:'Unit 7.0: Elektrik', sk:'7.1 Litar Elektrik',
+    sp:['Mengenal pasti komponen dalam litar elektrik (sel kering, mentol, suis)','Menyatakan fungsi komponen dalam litar elektrik lengkap','Membina litar elektrik lengkap dengan sel kering, mentol dan suis'],
+    tp:[
+      { lv:1, desc:'Menyatakan komponen yang terdapat dalam litar elektrik.' },
+      { lv:2, desc:'Memerihalkan fungsi komponen dalam litar elektrik.' },
+      { lv:3, desc:'Membina litar elektrik lengkap yang berfungsi.' },
+      { lv:4, desc:'Membuat kesimpulan tentang syarat litar elektrik lengkap.' },
+      { lv:5, desc:'Membuat rumusan tentang penggunaan litar elektrik dalam kehidupan.' },
+      { lv:6, desc:'Berkomunikasi secara kreatif tentang kepentingan dan keselamatan elektrik.' },
+    ],
+    catatan:'Penekanan kepada kemahiran memerhati, mengelas dan berkomunikasi. Peraturan dan langkah keselamatan perlu dipatuhi.'
+  },
+  { week:23, date:'06.07.2026–17.07.2026', tema:'Sains Bahan', unit:'Unit 8.0: Bahan', sk:'8.1 Bahan dalam Persekitaran',
+    sp:['Mengelas bahan berdasarkan ciri fizikal (warna, bentuk, tekstur)','Menyatakan kegunaan bahan dalam kehidupan seharian','Menjalankan penyiasatan tentang sifat bahan'],
+    tp:[
+      { lv:1, desc:'Menyatakan contoh bahan dalam persekitaran.' },
+      { lv:2, desc:'Memerihalkan ciri fizikal bahan.' },
+      { lv:3, desc:'Mengelas bahan berdasarkan ciri fizikal.' },
+      { lv:4, desc:'Membuat kesimpulan tentang kegunaan bahan berdasarkan cirinya.' },
+      { lv:5, desc:'Membuat rumusan tentang kepentingan bahan dalam kehidupan.' },
+      { lv:6, desc:'Berkomunikasi secara kreatif tentang bahan dan kegunaannya.' },
+    ],
+    catatan:'Penekanan kepada kemahiran memerhati, mengelas dan berkomunikasi. Murid digalakkan menggunakan deria penglihatan, sentuhan dan pendengaran.'
+  },
+  { week:28, date:'10.08.2026–04.09.2026', tema:'Sains Bumi dan Alam Semesta', unit:'Unit 9.0: Air dan Udara', sk:'9.1 Air · 9.2 Udara',
+    sp:['Menyatakan sumber air','Menyatakan kepentingan air kepada hidupan','Menyatakan sifat udara (tiada rupa, tiada warna, boleh dirasai)','Menyatakan kepentingan udara kepada hidupan'],
+    tp:[
+      { lv:1, desc:'Menyatakan sumber air dan udara.' },
+      { lv:2, desc:'Memerihalkan kepentingan air dan udara kepada hidupan.' },
+      { lv:3, desc:'Menjelaskan sifat air dan udara.' },
+      { lv:4, desc:'Membuat kesimpulan tentang kepentingan air dan udara melalui penyiasatan.' },
+      { lv:5, desc:'Membuat rumusan tentang keperluan air dan udara untuk kehidupan.' },
+      { lv:6, desc:'Berkomunikasi secara kreatif tentang pemeliharaan sumber air dan udara.' },
+    ],
+    catatan:'Penekanan kepada kemahiran memerhati dan berkomunikasi. Murid digalakkan mengaitkan kepentingan air dan udara dalam kehidupan seharian.'
+  },
+  { week:33, date:'21.09.2026–25.09.2026', tema:'Teknologi & Reka Bentuk', unit:'Unit 10.0: Set & Reka Bentuk', sk:'10.1 Set Reka Bentuk',
+    sp:['Memilih bahan yang sesuai untuk membina model','Mereka bentuk dan membina model mudah','Menilai model yang dibina'],
+    tp:[
+      { lv:1, desc:'Memilih bahan yang sesuai untuk membina model.' },
+      { lv:2, desc:'Memerihalkan fungsi model yang dibina.' },
+      { lv:3, desc:'Mereka bentuk dan membina model mudah.' },
+      { lv:4, desc:'Membuat penilaian tentang model yang dibina.' },
+      { lv:5, desc:'Membuat penambahbaikan pada model.' },
+      { lv:6, desc:'Berkomunikasi secara kreatif tentang reka bentuk model.' },
+    ],
+    catatan:'Murid mereka bentuk dan membina model berdasarkan keperluan. Kreativiti dan inovasi digalakkan.'
+  },
+  { week:37, date:'19.10.2026–06.11.2026', tema:'Kemahiran Saintifik', unit:'Unit 1.0: Kemahiran Proses Sains', sk:'Kemahiran Memerhati, Mengelas, Mengukur, Berkomunikasi',
+    sp:['Menggunakan deria yang terlibat semasa membuat pemerhatian','Mengelas objek berdasarkan ciri yang sama','Menggunakan peralatan yang sesuai untuk mengukur','Berkomunikasi keputusan penyiasatan'],
+    tp:[
+      { lv:1, desc:'Menyatakan deria yang digunakan semasa memerhati.' },
+      { lv:2, desc:'Memerihalkan cara membuat pemerhatian yang sistematik.' },
+      { lv:3, desc:'Menjelaskan cara mengelas objek berdasarkan ciri.' },
+      { lv:4, desc:'Menggunakan peralatan mengukur dengan betul.' },
+      { lv:5, desc:'Merekod dan berkomunikasi dapatan penyiasatan.' },
+      { lv:6, desc:'Berkomunikasi secara kreatif tentang dapatan sains.' },
+    ],
+    catatan:'Cadangan: Aktiviti hands-on dan inkuiri penemuan. Murid digalakkan membuat soalan dan menjawabnya melalui penyiasatan.'
+  },
+  { week:40, date:'09.11.2026–20.11.2026', type:'exam', label:'Peperiksaan Akhir Tahun', tema:'', unit:'', sk:'', sp:[], tp:[], catatan:'' },
+  { week:43, date:'30.11.2026–04.12.2026', type:'special', label:'Pengurusan Akhir Tahun', tema:'', unit:'', sk:'', sp:[], tp:[], catatan:'' },
+];
+
+// ═══════════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════════════════
+
+function getFocusClass(focus) {
+  if (!focus) return 'focus-default';
+  if (focus.toLowerCase().includes('listen')) return 'focus-Listening';
+  if (focus.toLowerCase().includes('speak')) return 'focus-Speaking';
+  if (focus.toLowerCase().includes('read')) return 'focus-Reading';
+  if (focus.toLowerCase().includes('writ')) return 'focus-Writing';
+  if (focus.toLowerCase().includes('lang') || focus.toLowerCase().includes('art')) return 'focus-Language';
+  return 'focus-default';
+}
+
+function renderBI() {
+  const container = document.getElementById('bi-content');
+  const nav = document.getElementById('bi-week-nav');
+  let html = '';
+  let navHtml = '';
+
+  biData.forEach((w, idx) => {
+    const isHoliday = w.type === 'holiday';
+    const isExam = w.type === 'exam';
+    const isSpecial = w.type === 'special' && w.week !== 1 && w.week !== 43;
+    const cls = isHoliday ? 'week-card holiday' : isExam ? 'week-card exam-card' : 'week-card';
+
+    let headerColor = '';
+    if (isExam) headerColor = 'style="background:var(--gold-light)"';
+
+    // Build lesson table
+    let bodyHtml = '';
+    if (w.lessons && w.lessons.length > 0) {
+      let rows = w.lessons.map(l => `
+        <tr>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;white-space:nowrap">${l.no}</td>
+          <td><span class="focus-tag ${getFocusClass(l.focus)}">${l.focus}</span></td>
+          <td class="std-text">${l.standards}</td>
+          <td style="font-size:11.5px;color:var(--text-muted)">${l.bbm}</td>
+        </tr>`).join('');
+      bodyHtml = `
+        <table class="lesson-table">
+          <thead><tr>
+            <th>PdP</th><th>Fokus</th><th>Standard Kandungan / Standard Pembelajaran</th><th>Rujukan / BBM</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    } else if (isHoliday || isExam || w.type === 'special') {
+      bodyHtml = `<div style="padding:14px 18px;font-size:12px;color:var(--text-muted)">${w.label || '—'}</div>`;
+    }
+
+    const topBadge = isHoliday ? '<span class="week-badge badge-holiday">Cuti</span>'
+                   : isExam ? '<span class="week-badge badge-exam">Exam</span>'
+                   : `<span style="font-size:11px;color:var(--text-muted)">${w.lessons.length} pdp</span>`;
+
+    html += `
+    <div class="${cls}" id="bi-week-${w.week}">
+      <div class="week-card-header" ${headerColor} onclick="toggleCard(this.parentElement)">
+        <div class="wk-num" style="color:${isHoliday?'#e8b0b0':isExam?'#c0902a':'#d0c8b8'}">${w.week}</div>
+        <div class="wk-info">
+          <h3>${isHoliday||isExam||w.type==='special' ? w.label : (w.unit||'')}</h3>
+          <p>${w.date}${w.theme ? ' · '+w.theme : ''}</p>
+        </div>
+        ${topBadge}
+        <span class="chevron">▶</span>
+      </div>
+      <div class="week-card-body">${bodyHtml}</div>
+    </div>`;
+
+    // Nav
+    const navBadge = isHoliday ? '<span class="week-badge badge-holiday">Cuti</span>'
+                   : isExam ? '<span class="week-badge badge-exam">Exam</span>' : '';
+    navHtml += `<div class="week-item" onclick="jumpToWeek('bi',${w.week})">
+      <span class="week-num">Wk ${w.week}</span>
+      <span class="week-label">${isHoliday||isExam||w.type==='special' ? w.label.split('/')[0].trim() : (w.unit||'Minggu '+w.week)}</span>
+      ${navBadge}
+    </div>`;
+  });
+
+  container.innerHTML = html;
+  nav.innerHTML = navHtml;
+}
+
+function renderSains() {
+  const container = document.getElementById('sains-content');
+  const nav = document.getElementById('sains-week-nav');
+  let html = '';
+  let navHtml = '';
+
+  sainsData.forEach(w => {
+    const isHoliday = w.type === 'holiday';
+    const isExam = w.type === 'exam';
+    const isSpecial = w.type === 'special';
+
+    if (isHoliday || isExam || isSpecial) {
+      const bg = isHoliday ? 'background:#fdf5f5' : isExam ? 'background:var(--gold-light)' : '';
+      html += `<div class="sains-card" id="sains-week-${w.week}">
+        <div class="sains-header" style="${bg};border-left-color:${isHoliday?'var(--red)':isExam?'var(--gold)':'var(--border)'}">
+          <div class="sk-wk" style="${isHoliday?'background:#fde8e8;color:var(--red)':isExam?'background:var(--gold-light);color:var(--gold)':''}">${isHoliday?'🎉':isExam?'📝':'📋'} Mggu ${w.week}</div>
+          <div class="sk-content"><h3>${w.label}</h3><p>${w.date}</p></div>
+        </div>
+      </div>`;
+      navHtml += `<div class="week-item" onclick="jumpToWeek('sains',${w.week})">
+        <span class="week-num">Wk ${w.week}</span>
+        <span class="week-label">${w.label.substring(0,30)}</span>
+        ${isHoliday?'<span class="week-badge badge-holiday">Cuti</span>':isExam?'<span class="week-badge badge-exam">Exam</span>':''}
+      </div>`;
+      return;
+    }
+
+    const tpRows = (w.tp||[]).map(tp => `
+      <div class="tp-cell">
+        <div class="tp-num">${tp.lv}</div>
+        <div class="tp-label">${tp.desc.substring(0,60)}${tp.desc.length>60?'…':''}</div>
+      </div>`).join('');
+
+    const spList = (w.sp||[]).map(s => `<li style="margin-bottom:4px">${s}</li>`).join('');
+
+    html += `
+    <div class="sains-card" id="sains-week-${w.week}">
+      <div class="sains-header" onclick="toggleCard(this.parentElement)">
+        <div class="sk-wk">Mggu ${w.week}</div>
+        <div class="sk-content">
+          <h3>${w.sk||w.label||''}</h3>
+          <p>${w.date} · ${w.tema||''} · ${w.unit||''}</p>
+        </div>
+        <span class="chevron">▶</span>
+      </div>
+      <div class="sains-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Standard Pembelajaran</div>
+            <ul style="padding-left:18px;font-size:12.5px;line-height:1.7">${spList}</ul>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Standard Prestasi (TP 1–6)</div>
+            <div class="tp-grid">${tpRows}</div>
+          </div>
+        </div>
+        ${w.catatan ? `<div class="catatan-box"><strong>Catatan / Strategi</strong>${w.catatan}</div>` : ''}
+      </div>
+    </div>`;
+
+    navHtml += `<div class="week-item" onclick="jumpToWeek('sains',${w.week})">
+      <span class="week-num">Wk ${w.week}</span>
+      <span class="week-label">${(w.sk||w.label||'').substring(0,28)}</span>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+  nav.innerHTML = navHtml;
+}
+
+function renderDashboard() {
+  // Heatmap
+  const hm = document.getElementById('heatmap');
+  let hmHtml = '';
+  for (let w = 1; w <= 43; w++) {
+    const bi = biData.find(d => d.week === w);
+    const sains = sainsData.find(d => d.week === w);
+    let cls = 'hm-bi';
+    let label = String(w);
+    if (bi && (bi.type === 'holiday' || bi.type === 'exam')) cls = 'hm-holiday';
+    else if (bi && bi.type === 'special') cls = 'hm-exam';
+    else if (bi && sains && bi.lessons && bi.lessons.length > 0 && sains.sp && sains.sp.length > 0) cls = 'hm-both';
+    else if (sains && sains.sp && sains.sp.length > 0) cls = 'hm-sains';
+
+    hmHtml += `<div class="hm-cell ${cls}" title="Minggu ${w}${bi?' — '+((bi.unit||bi.label)||''):''}${sains&&sains.sk?' | '+sains.sk:''}" onclick="jumpAndShow(${w})">${label}</div>`;
+  }
+  hm.innerHTML = hmHtml;
+
+  // Focus chart
+  const fc = document.getElementById('focus-chart');
+  const focusCounts = { Listening: 0, Speaking: 0, Reading: 0, Writing: 0, 'Language Arts': 0 };
+  biData.forEach(w => {
+    (w.lessons||[]).forEach(l => {
+      if (l.focus in focusCounts) focusCounts[l.focus]++;
+      else if (l.focus && l.focus.toLowerCase().includes('art')) focusCounts['Language Arts']++;
+    });
+  });
+  const maxCount = Math.max(...Object.values(focusCounts));
+  const colors = { Listening: '#1a5c90', Speaking: '#b06a10', Reading: '#1a6b30', Writing: '#6a1a90', 'Language Arts': '#901a1a' };
+  let fcHtml = '';
+  Object.entries(focusCounts).forEach(([k, v]) => {
+    const pct = Math.round((v/maxCount)*100);
+    fcHtml += `<div class="fc-item">
+      <div class="fc-bar-wrap">
+        <div class="fc-bar" style="height:${pct}%;background:${colors[k]}20;border-bottom:3px solid ${colors[k]}"></div>
+      </div>
+      <div class="fc-count" style="color:${colors[k]}">${v}</div>
+      <div class="fc-name">${k}</div>
+    </div>`;
+  });
+  fc.innerHTML = fcHtml;
+}
+
+// ═══════════════════════════════════════════════════════
+// NAV + INTERACTION
+// ═══════════════════════════════════════════════════════
+
+let currentPanel = 'dashboard';
+
+function showPanel(panel) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tab-btn.' + (panel === 'dashboard' ? 'bi' : panel)).classList.add('active');
+  if (panel === 'dashboard') document.querySelector('.tab-btn.bi').classList.add('active');
+
+  // Sidebar toggle
+  document.getElementById('sidebar-weeks-bi').style.display = panel === 'bi' ? 'block' : 'none';
+  document.getElementById('sidebar-weeks-sains').style.display = panel === 'sains' ? 'block' : 'none';
+
+  currentPanel = panel;
+}
+
+function toggleCard(el) {
+  el.classList.toggle('open');
+}
+
+function jumpToWeek(subject, weekNum) {
+  showPanel(subject);
+  setTimeout(() => {
+    const el = document.getElementById(subject + '-week-' + weekNum);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (!el.classList.contains('open')) el.classList.add('open');
+    }
+  }, 100);
+}
+
+function jumpAndShow(weekNum) {
+  const bi = biData.find(d => d.week === weekNum);
+  if (bi && bi.lessons && bi.lessons.length > 0) {
+    jumpToWeek('bi', weekNum);
+  } else {
+    jumpToWeek('sains', weekNum);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+renderBI();
+renderSains();
+renderDashboard();
+showPanel('dashboard');
+</script>
+</body>
+</html>
